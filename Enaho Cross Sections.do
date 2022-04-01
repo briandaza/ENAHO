@@ -1,9 +1,9 @@
 /* ---------------------------------------------------------------------------
       Preparación de base de datos a partir de los microdatos de ENAHO
-                                2004 - 2015
+                                2004 - 2020
   
   
- Brian Daza - bdaza@umich.edu - bdaza.github.io      Esta version:  14-05-2021 
+ Brian Daza - bdaza@umich.edu - bdaza.github.io      Esta version:  14-11-2021 
 ==============================================================================
 
 * Notas:
@@ -11,15 +11,19 @@
 - Los archivos .zip han sido descomprimidos en carpetas agrupadas por año.
 - EL único cambio manual ha sido el cambio de nombre de "498_Modulo02" a 
 "498-Modulo02" en el año 2015.
+
+He separado este do-file en dos 'Cross-section_Merge_and_encoding' y
+'Cross-section_Processing'. Fijate en ellos, este ya no esta actualizado.
+
                                                                               */
 
 * Alistando el Entorno
 																			   
 clear
-global mdir "G:\Mi unidad"
+global mdir "C:\Users\dazav\Dropbox (Personal)\Datasets\ENAHO"
 
 * Directorio de las bases de datos:
-global mbd "$mdir\ENAHO"
+global mbd "$mdir\Raw"
 
 * Raíz del nombre de los módulos por año:
 global r2004 "\280"
@@ -44,10 +48,10 @@ global r2020 "\737"
 global iscofolder "$mbd\2017\603-Modulo05"
 
 * Output
-
-global output "$mbd\Compiled_data"
+global output "$mdir\Clean"
 global post "$mbd\Products"
 
+cd "$output"
 
 * -----------------------------------------------------------------------------
 * 		              SÍNTESIS DE LA BASE DE DATOS
@@ -116,8 +120,8 @@ if `x' >= 2012 {
        }
 else if `x' < 2012 {
 	   merge 1:1 conglome vivienda hogar codperso using "$mbd\\`x'${r`x'}-Modulo05\enaho01a-`x'-500.dta", keepusing(ocu500 codinfor p501 p520 p502 p503 p504* p505* p506* p516* p507 p511* p513* p515* p545 fac500a  i524* d529* i530* d536 i538* d540* i541* d543 d544t )
-if `x' == 2011 rename fac500a7 fac500a
- } 
+* if `x' == 2011 rename fac500a7 fac500a
+} 
 
 drop _merge 
 
@@ -203,7 +207,19 @@ tostring ubixeo, gen(ubigeo2)
 gen lubixeo=length(ubigeo2)
 replace ubigeo2="0" + ubigeo2 if lubixeo==5
 replace ubigeo=ubigeo2
-drop ubigeo2 lubixeo
+drop ubigeo2 lubixeo ubixeo
+
+save "$output\base_cs_enaho_raw.dta", replace
+
+
+* Raw data needs translation:
+unicode analyze "base_cs_enaho_raw.dta"
+
+if `r(N_needed)'>0 {
+* So, we codify them:
+unicode encoding set "ISO-8859-1"
+unicode translate "base_cs_enaho_raw.dta"
+}
 
 
 * Generamos algunas variables dentro del hogar:
