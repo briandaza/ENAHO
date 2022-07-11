@@ -216,6 +216,7 @@ drop ubigeo2 lubixeo ubixeo
 
 save "$output\base_cs_enaho_raw.dta", replace
 
+clear
 
 * Raw data needs translation:
 unicode analyze "base_cs_enaho_raw.dta"
