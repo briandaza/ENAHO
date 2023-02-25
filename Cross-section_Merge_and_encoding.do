@@ -191,8 +191,6 @@ capture erase "$output\vivienda`x'.dta"
 
 * Entre años:
 
-set more off
-
 use "$output\basei2004.dta", clear
 
 forvalue j=2005/2020 {
@@ -213,6 +211,10 @@ gen lubixeo=length(ubigeo2)
 replace ubigeo2="0" + ubigeo2 if lubixeo==5
 replace ubigeo=ubigeo2
 drop ubigeo2 lubixeo ubixeo
+
+* Modify labels that were mismatched at some point (estatal/no estatal instead of Yes/No)
+
+label define LABB 1 "Yes" 2 "No", replace
 
 save "$output\base_cs_enaho_raw.dta", replace
 
